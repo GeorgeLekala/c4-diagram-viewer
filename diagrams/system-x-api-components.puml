@@ -1,0 +1,14 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+title Component Diagram for System X API
+Container_Boundary(api, "API") {
+    Component(controller, "Controller", "Spring MVC", "Handles HTTP requests")
+    Component(service, "Service", "Spring Bean", "Implements business logic")
+    Component(repo, "Repository", "Spring Data", "Manages database access")
+}
+ContainerDb(db, "Database", "PostgreSQL", "Stores application data")
+Rel(controller, service, "Uses")
+Rel(service, repo, "Uses")
+Rel(repo, db, "Reads/Writes", "JDBC")
+SHOW_LEGEND()
+@enduml

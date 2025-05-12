@@ -1,0 +1,4 @@
+@startuml
+(*) --> "Hello"
+"Hello" --> (*)
+@enduml
