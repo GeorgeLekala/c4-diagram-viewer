@@ -13,7 +13,7 @@ title System Landscape diagram for Big Bank plc
 Person(customer, "Personal Banking Customer", "A customer of the bank, with personal bank accounts.")
 
 Enterprise_Boundary(c0, "Big Bank plc") {
-    System(banking_system, "Internet Banking System", "Allows customers to view information about their bank accounts, and make payments.")
+    System(banking_system, "Internet Banking System", "Allows customers to view information about their bank accounts, and make payments.") [[/diagram/BigBank/containers]]
 
     System_Ext(atm, "ATM", "Allows customers to withdraw cash.")
     System_Ext(mail_system, "E-mail system", "The internal Microsoft Exchange e-mail system.")
