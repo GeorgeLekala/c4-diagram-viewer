@@ -56,14 +56,15 @@
         let systems = {};
         let currentSystem = null;
 
-        function loadSystems() {
-            systems["System X"] = {
-                context: { puml: "@startuml\n!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml\ntitle System Context Diagram for System X\nPerson(user, \"User\", \"A person interacting with System X\") [[/diagram/System X/context]]\nSystem(sys_x, \"System X\", \"The core application providing key functionality\") [[/diagram/System X/containers]]\nSystem_Ext(ext_sys, \"External System\", \"An external service providing data or functionality\")\nRel(user, sys_x, \"Uses\", \"HTTPS\")\nRel(sys_x, ext_sys, \"Integrates with\", \"API/JSON\")\nSHOW_LEGEND()\n@enduml", md: "# System X Context Diagram\nThis diagram shows the high-level context of System X, including:\n- **User**: Interacts with System X via HTTPS.\n- **System X**: The core application.\n- **External System**: Provides data via API/JSON." },
-                containers: { puml: "@startuml\n!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml\ntitle Container Diagram for System X\nPerson(user, \"User\", \"A person interacting with System X\")\nSystem_Boundary(c1, \"System X\") {\n    Container(web_app, \"Web App\", \"JavaScript, React\", \"Delivers the user interface\")\n    Container(api, \"API\", \"Java, Spring Boot\", \"Handles business logic and data\") [[/diagram/System X/components]]\n    ContainerDb(db, \"Database\", \"PostgreSQL\", \"Stores application data\")\n}\nSystem_Ext(ext_sys, \"External System\", \"Provides data or functionality\")\nRel(user, web_app, \"Uses\", \"HTTPS\")\nRel(web_app, api, \"Calls\", \"JSON/HTTPS\")\nRel(api, db, \"Reads/Writes\", \"JDBC\")\nRel(api, ext_sys, \"Integrates with\", \"API/JSON\")\nSHOW_LEGEND()\n@enduml", md: "# System X Container Diagram\nThis diagram zooms into System X, showing:\n- **Web App**: Delivers the UI using React.\n- **API**: Handles logic with Spring Boot.\n- **Database**: Stores data in PostgreSQL.\n- **External System**: Integrated via API/JSON." },
-                components: { puml: "@startuml\n!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml\ntitle Component Diagram for System X API\nContainer_Boundary(api, \"API\") {\n    Component(controller, \"Controller\", \"Spring MVC\", \"Handles HTTP requests\")\n    Component(service, \"Service\", \"Spring Bean\", \"Implements business logic\")\n    Component(repo, \"Repository\", \"Spring Data\", \"Manages database access\")\n}\nContainerDb(db, \"Database\", \"PostgreSQL\", \"Stores application data\")\nRel(controller, service, \"Uses\")\nRel(service, repo, \"Uses\")\nRel(repo, db, \"Reads/Writes\", \"JDBC\")\nSHOW_LEGEND()\n@enduml", md: "# System X API Component Diagram\nThis diagram details the API container:\n- **Controller**: Handles HTTP requests.\n- **Service**: Implements business logic.\n- **Repository**: Manages database access." }
-            };
-            updateSystemsList();
-            updateSidebar();
+        async function loadSystems() {
+            try {
+                const response = await fetch('/api/systems');
+                systems = await response.json();
+                updateSystemsList();
+                updateSidebar();
+            } catch (err) {
+                console.error('Error loading systems:', err);
+            }
         }
 
         function updateSystemsList() {
@@ -94,17 +95,24 @@
             }
         }
 
-        function addSystem() {
+        async function addSystem() {
             const name = document.getElementById('new-system-name').value.trim();
             if (name && !systems[name]) {
-                systems[name] = {
-                    context: { puml: "", md: "" },
-                    containers: { puml: "", md: "" },
-                    components: { puml: "", md: "" }
-                };
-                document.getElementById('new-system-name').value = '';
-                updateSystemsList();
-                updateSidebar();
+                try {
+                    const response = await fetch('/api/systems', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name })
+                    });
+                    if (response.ok) {
+                        await loadSystems();
+                        document.getElementById('new-system-name').value = '';
+                    } else {
+                        console.error('Error adding system:', await response.json());
+                    }
+                } catch (err) {
+                    console.error('Error adding system:', err);
+                }
             }
         }
 
@@ -112,7 +120,7 @@
             currentSystem = systemName;
             document.getElementById('diagram-editor').style.display = 'block';
             document.getElementById('page-title').textContent = `${systemName} - Edit`;
-            updateSidebar();
+            updateNav();
         }
 
         function updateNav() {
@@ -151,14 +159,28 @@
             }
         }
 
-        function saveDiagram() {
+        async function saveDiagram() {
             if (currentSystem) {
                 const type = document.getElementById('diagram-type').value;
-                systems[currentSystem][type].puml = document.getElementById('puml-code').value;
-                systems[currentSystem][type].md = document.getElementById('explanation').value;
-                alert('Diagram saved!');
-                document.getElementById('diagram-editor').style.display = 'none';
-                document.getElementById('preview-output').innerHTML = '';
+                const puml = document.getElementById('puml-code').value;
+                const md = document.getElementById('explanation').value;
+                try {
+                    const response = await fetch(`/api/systems/${currentSystem}/${type}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ puml, md })
+                    });
+                    if (response.ok) {
+                        systems[currentSystem][type] = { puml, md };
+                        alert('Diagram saved!');
+                        document.getElementById('diagram-editor').style.display = 'none';
+                        document.getElementById('preview-output').innerHTML = '';
+                    } else {
+                        console.error('Error saving diagram:', await response.json());
+                    }
+                } catch (err) {
+                    console.error('Error saving diagram:', err);
+                }
             }
         }
 
