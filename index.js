@@ -191,7 +191,9 @@ app.post('/preview', async (req, res) => {
 
         const response = await fetch(plantumlUrl);
         if (!response.ok) {
-            throw new Error(`PlantUML server responded with status ${response.status}`);
+            const errorText = await response.text();
+            console.log('PlantUML server error response:', errorText);
+            throw new Error(`PlantUML server responded with status ${response.status}: ${errorText}`);
         }
         const diagramSvg = await response.text();
         res.json({ svg: diagramSvg });
@@ -271,21 +273,98 @@ app.get('/diagram/:system/:type', async (req, res) => {
                         </nav>
                     </header>
                     <div class="content">
-                        <div class="column diagram-column">
+                        <div class="diagram-column">
                             <h2>Rendered Diagram</h2>
-                            <div class="diagram-output">${diagramSvg}</div>
+                            <div class="diagram-output" id="diagram-output">
+                                ${diagramSvg}
+                            </div>
+                            <div class="zoom-controls">
+                                <button id="zoom-in"><i class="fas fa-search-plus"></i> Zoom In</button>
+                                <button id="zoom-out"><i class="fas fa-search-minus"></i> Zoom Out</button>
+                                <button id="zoom-reset"><i class="fas fa-undo"></i> Reset</button>
+                            </div>
                         </div>
-                        <div class="column explanation-column">
-                            <h2>Explanation</h2>
-                            <div class="explanation-content">${md}</div>
-                        </div>
-                        <div class="column code-column">
-                            <h2>Diagram Code (PlantUML)</h2>
-                            <pre><code>${puml.replace(/</g, '<').replace(/>/g, '>')}</code></pre>
+                        <div class="sub-content">
+                            <div class="explanation-column">
+                                <h2>Explanation</h2>
+                                <div class="explanation-content">${md}</div>
+                            </div>
+                            <div class="code-column">
+                                <h2>Diagram Code (PlantUML)</h2>
+                                <pre><code>${puml.replace(/</g, '<').replace(/>/g, '>')}</code></pre>
+                            </div>
                         </div>
                     </div>
                 </main>
             </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    let scale = 1;
+                    const diagramOutput = document.getElementById('diagram-output');
+                    const zoomInBtn = document.getElementById('zoom-in');
+                    const zoomOutBtn = document.getElementById('zoom-out');
+                    const zoomResetBtn = document.getElementById('zoom-reset');
+
+                    function updateZoom() {
+                        diagramOutput.style.transform = 'scale(' + scale + ')';
+                        diagramOutput.style.transformOrigin = '0 0';
+                    }
+
+                    zoomInBtn.addEventListener('click', () => {
+                        scale += 0.1;
+                        scale = Math.min(scale, 3);
+                        updateZoom();
+                    });
+
+                    zoomOutBtn.addEventListener('click', () => {
+                        scale -= 0.1;
+                        scale = Math.max(scale, 0.1);
+                        updateZoom();
+                    });
+
+                    zoomResetBtn.addEventListener('click', () => {
+                        scale = 1;
+                        updateZoom();
+                    });
+
+                    diagramOutput.addEventListener('wheel', (e) => {
+                        e.preventDefault();
+                        const delta = e.deltaY > 0 ? -0.1 : 0.1;
+                        scale += delta;
+                        scale = Math.min(Math.max(0.1, scale), 3);
+                        updateZoom();
+                    });
+
+                    let initialDistance = null;
+                    diagramOutput.addEventListener('touchstart', (e) => {
+                        if (e.touches.length === 2) {
+                            initialDistance = Math.hypot(
+                                e.touches[0].pageX - e.touches[1].pageX,
+                                e.touches[0].pageY - e.touches[1].pageY
+                            );
+                        }
+                    });
+
+                    diagramOutput.addEventListener('touchmove', (e) => {
+                        if (e.touches.length === 2 && initialDistance) {
+                            const newDistance = Math.hypot(
+                                e.touches[0].pageX - e.touches[1].pageX,
+                                e.touches[0].pageY - e.touches[1].pageY
+                            );
+                            const delta = newDistance - initialDistance;
+                            scale += delta * 0.001;
+                            scale = Math.min(Math.max(0.1, scale), 3);
+                            updateZoom();
+                            initialDistance = newDistance;
+                            e.preventDefault();
+                        }
+                    });
+
+                    diagramOutput.addEventListener('touchend', () => {
+                        initialDistance = null;
+                    });
+                });
+            </script>
         </body>
         </html>
     `;

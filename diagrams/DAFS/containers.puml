@@ -1,0 +1,35 @@
+@startuml
+!include <C4/C4_Container.puml>
+
+title Container Diagram for Current Loan Application System
+
+Person_Ext(applicant, "Loan Applicant", "Individual applying for a loan.")
+
+System_Ext(credit_bureau, "Credit Bureau", "Provides credit reports, fraud checks, and qualification data.")
+System_Ext(banking_system, "Banking System", "Handles bank account verification, DebiCheck processes.")
+System_Ext(comcorp_system, "Comcorp / Payroll System", "Verifies payroll information.")
+System_Ext(doc_mgmt_system, "Document Management System", "Stores and manages uploaded user documents.")
+System_Ext(comms_gateway, "Communication Gateway", "Sends Email/SMS notifications.")
+
+System_Boundary(loan_app_system_b, "Online Loan Application System") {
+    Container(frontend_app, "Web Frontend", "Web Application (e.g., Javascript, HTML, CSS)", "Provides the user interface for loan application screens (F1-F13, F30-F32), captures user input, and displays information.")
+    Container(backend_api, "Backend API & Orchestration", "API Application (e.g., Java/Spring Boot, Node.js)", "Handles business logic, orchestrates calls to processors, manages application state, and exposes APIs to the frontend.")
+    Container(processing_services, "Processing Services Engine", "Internal Services/Modules", "Hosts various application processors (Turbo, IDP) responsible for specific tasks like data validation, saving, qualification, quote generation, etc.")
+    ContainerDb(database, "Application Database", "Relational Database (e.g., PostgreSQL, MySQL)", "Stores all application data, user details, loan status, submitted information, and quote details.")
+
+    Rel(applicant, frontend_app, "Uses", "HTTPS")
+
+    Rel(frontend_app, backend_api, "Submits application data, requests quotes, uploads docs", "HTTPS/JSON API")
+
+    Rel(backend_api, database, "Reads/Writes application state and user data", "JDBC/SQL")
+    Rel(backend_api, processing_services, "Delegates tasks to specific processors", "Internal Calls / Message Queue")
+
+    ' Interactions from Processing Services or Backend API to External Systems
+    Rel(processing_services, credit_bureau, "Performs fraud/qualification checks", "API")
+    Rel(processing_services, banking_system, "Verifies bank details, initiates DebiCheck", "API")
+    Rel(processing_services, comcorp_system, "Verifies payroll info", "API")
+    Rel(processing_services, doc_mgmt_system, "Stores/Retrieves documents", "API")
+    Rel(processing_services, comms_gateway, "Sends notifications", "API")
+    Rel(processing_services, database, "Saves processor outputs and state changes", "Internal")
+}
+@enduml
