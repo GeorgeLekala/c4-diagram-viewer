@@ -1,6 +1,7 @@
 const express = require("express");
 const fs = require("fs").promises;
 const path = require("path");
+const { spawn } = require("child_process");
 
 const app = express();
 const port = 3000;
@@ -8,172 +9,12 @@ const port = 3000;
 const VIEWS_DIR = path.join(__dirname, "views");
 const PUBLIC_DIR = path.join(__dirname, "public");
 const DIAGRAMS_DIR = path.join(__dirname, "diagrams");
+const PLANTUML_JAR_PATH = path.join(__dirname, "lib", "plantuml.jar");
 
-// Ensure the diagrams directory exists and initialize with default data if empty
+// Ensure the diagrams directory exists
 async function initializeDiagramsDir() {
     try {
         await fs.mkdir(DIAGRAMS_DIR, { recursive: true });
-        const systems = await fs.readdir(DIAGRAMS_DIR);
-        if (systems.length === 0) {
-            const systemXDir = path.join(DIAGRAMS_DIR, "System X");
-            await fs.mkdir(systemXDir);
-            // Info
-            await fs.writeFile(
-                path.join(systemXDir, "info.md"),
-                `# System X Info
-- **Description**: This is a sample system for demonstration purposes.
-- **Vision**: To provide a scalable architecture visualization tool.
-- **References**:
-  - [C4 Model](https://c4model.com)`,
-            );
-            // Context
-            await fs.writeFile(
-                path.join(systemXDir, "context.puml"),
-                `@startuml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
-title System Context Diagram for System X
-Person(user, "User", "A person interacting with System X")
-System(sys_x, "System X", "The core application providing key functionality")
-System_Ext(ext_sys, "External System", "An external service providing data or functionality")
-Rel(user, sys_x, "Uses", "HTTPS")
-Rel(sys_x, ext_sys, "Integrates with", "API/JSON")
-SHOW_LEGEND()
-@enduml`,
-            );
-            await fs.writeFile(
-                path.join(systemXDir, "context.md"),
-                `# System X Context Diagram
-This diagram shows the high-level context of System X, including:
-- **User**: Interacts with System X via HTTPS.
-- **System X**: The core application.
-- **External System**: Provides data via API/JSON.`,
-            );
-            // Containers
-            await fs.writeFile(
-                path.join(systemXDir, "containers.puml"),
-                `@startuml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
-title Container Diagram for System X
-Person(user, "User", "A person interacting with System X")
-System_Boundary(c1, "System X") {
-    Container(web_app, "Web App", "JavaScript, React", "Delivers the user interface")
-    Container(api, "API", "Java, Spring Boot", "Handles business logic and data")
-    ContainerDb(db, "Database", "PostgreSQL", "Stores application data")
-}
-System_Ext(ext_sys, "External System", "Provides data or functionality")
-Rel(user, web_app, "Uses", "HTTPS")
-Rel(web_app, api, "Calls", "JSON/HTTPS")
-Rel(api, db, "Reads/Writes", "JDBC")
-Rel(api, ext_sys, "Integrates with", "API/JSON")
-SHOW_LEGEND()
-@enduml`,
-            );
-            await fs.writeFile(
-                path.join(systemXDir, "containers.md"),
-                `# System X Container Diagram
-This diagram zooms into System X, showing:
-- **Web App**: Delivers the UI using React.
-- **API**: Handles logic with Spring Boot.
-- **Database**: Stores data in PostgreSQL.
-- **External System**: Integrated via API/JSON.`,
-            );
-            // Components
-            await fs.writeFile(
-                path.join(systemXDir, "components.puml"),
-                `@startuml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
-title Component Diagram for System X API
-Container_Boundary(api, "API") {
-    Component(controller, "Controller", "Spring MVC", "Handles HTTP requests")
-    Component(service, "Service", "Spring Bean", "Implements business logic")
-    Component(repo, "Repository", "Spring Data", "Manages database access")
-}
-ContainerDb(db, "Database", "PostgreSQL", "Stores application data")
-Rel(controller, service, "Uses")
-Rel(service, repo, "Uses")
-Rel(repo, db, "Reads/Writes", "JDBC")
-SHOW_LEGEND()
-@enduml`,
-            );
-            await fs.writeFile(
-                path.join(systemXDir, "components.md"),
-                `# System X API Component Diagram
-This diagram details the API container:
-- **Controller**: Handles HTTP requests.
-- **Service**: Implements business logic.
-- **Repository**: Manages database access.`,
-            );
-            // Code
-            await fs.writeFile(
-                path.join(systemXDir, "code.puml"),
-                `@startuml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
-title Code Diagram for System X API
-package "API" {
-    class "Controller" {
-        + handleRequest()
-    }
-    class "Service" {
-        + processLogic()
-    }
-    class "Repository" {
-        + queryDatabase()
-    }
-}
-Controller --> Service
-Service --> Repository
-@enduml`,
-            );
-            await fs.writeFile(
-                path.join(systemXDir, "code.md"),
-                `# System X Code Diagram
-This diagram shows the class structure within the API:
-- **Controller**: Handles HTTP requests.
-- **Service**: Processes business logic.
-- **Repository**: Queries the database.`,
-            );
-            // Deployment
-            await fs.writeFile(
-                path.join(systemXDir, "deployment.puml"),
-                `@startuml
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
-title Deployment Diagram for System X
-Deployment_Node(web_server, "Web Server", "AWS EC2", "Hosts the Web App") {
-    Container(web_app, "Web App", "JavaScript, React", "Delivers UI")
-}
-Deployment_Node(api_server, "API Server", "AWS EC2", "Hosts the API") {
-    Container(api, "API", "Java, Spring Boot", "Handles logic")
-}
-Deployment_Node(db_server, "Database Server", "AWS RDS", "Hosts the Database") {
-    ContainerDb(db, "Database", "PostgreSQL", "Stores data")
-}
-Rel(web_app, api, "Calls", "JSON/HTTPS")
-Rel(api, db, "Reads/Writes", "JDBC")
-SHOW_LEGEND()
-@enduml`,
-            );
-            await fs.writeFile(
-                path.join(systemXDir, "deployment.md"),
-                `# System X Deployment Diagram
-This diagram shows the deployment topology:
-- **Web Server**: Hosts the Web App on AWS EC2.
-- **API Server**: Hosts the API on AWS EC2.
-- **Database Server**: Hosts the Database on AWS RDS.`,
-            );
-            // Documentation
-            await fs.writeFile(
-                path.join(systemXDir, "documentation.md"),
-                `# System X Documentation
-## Overview
-System X is designed to demonstrate the C4 model for architecture visualization.
-
-## Architecture
-The system follows a microservices architecture with a React frontend, Spring Boot API, and PostgreSQL database.
-
-## Deployment
-Deployed on AWS with EC2 and RDS.`,
-            );
-        }
     } catch (err) {
         console.error("Error initializing diagrams directory:", err);
     }
@@ -280,6 +121,40 @@ async function loadSystems() {
 app.use(express.static(PUBLIC_DIR));
 app.use(express.json());
 
+// Helper function to render PlantUML diagram locally
+async function renderPlantUML(pumlCode) {
+    return new Promise((resolve, reject) => {
+        const { spawn } = require("child_process");
+        const plantumlProcess = spawn("java", ["-jar", PLANTUML_JAR_PATH, "-pipe", "-tsvg"]);
+
+        let svgOutput = "";
+        let errorOutput = "";
+
+        plantumlProcess.stdin.write(pumlCode);
+        plantumlProcess.stdin.end();
+
+        plantumlProcess.stdout.on("data", (data) => {
+            svgOutput += data.toString();
+        });
+
+        plantumlProcess.stderr.on("data", (data) => {
+            errorOutput += data.toString();
+        });
+
+        plantumlProcess.on("close", (code) => {
+            if (code === 0 && svgOutput) {
+                resolve(svgOutput);
+            } else {
+                reject(new Error(`PlantUML rendering failed: ${errorOutput || "No output"}`));
+            }
+        });
+
+        plantumlProcess.on("error", (err) => {
+            reject(new Error(`Failed to start PlantUML process: ${err.message}`));
+        });
+    });
+}
+
 // Initialize diagrams directory on startup
 initializeDiagramsDir().then(() => {
     console.log("Diagrams directory initialized");
@@ -380,7 +255,7 @@ app.put("/api/systems/:system/:type", async (req, res) => {
     }
 });
 
-// Preview endpoint for rendering PlantUML on the server
+// Preview endpoint for rendering PlantUML locally
 app.post("/preview", async (req, res) => {
     console.log("Received preview request:", req.body);
     const { pumlCode } = req.body;
@@ -391,22 +266,10 @@ app.post("/preview", async (req, res) => {
     }
 
     try {
-        const encoded = encodeURIComponent(pumlCode);
-        const plantumlUrl = `http://www.plantuml.com/plantuml/svg/~h${Buffer.from(pumlCode).toString("hex")}`;
-        console.log("Fetching SVG from PlantUML server:", plantumlUrl);
-
-        const response = await fetch(plantumlUrl);
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.log("PlantUML server error response:", errorText);
-            throw new Error(
-                `PlantUML server responded with status ${response.status}: ${errorText}`,
-            );
-        }
-        const diagramSvg = await response.text();
-        res.json({ svg: diagramSvg });
+        const svg = await renderPlantUML(pumlCode);
+        res.json({ svg });
     } catch (procError) {
-        console.error("Error rendering preview:", procError);
+        console.error("Error rendering preview from PlantUML:", procError);
         res.status(500).json({
             error: `Failed to render diagram: ${procError.message}`,
         });
@@ -440,12 +303,7 @@ app.get("/diagram/:system/:type", async (req, res) => {
             : "";
         if (puml) {
             try {
-                const encoded = encodeURIComponent(puml);
-                const plantumlUrl = `http://www.plantuml.com/plantuml/svg/~h${Buffer.from(puml).toString("hex")}`;
-                const response = await fetch(plantumlUrl);
-                if (response.ok) {
-                    diagramSvg = await response.text();
-                }
+                diagramSvg = await renderPlantUML(puml);
             } catch (procError) {
                 console.error(
                     `Error rendering ${system} (${type}):`,
@@ -469,14 +327,36 @@ app.get("/diagram/:system/:type", async (req, res) => {
                 </div>
                 <div class="column is-one-third">
                     <h2>Explanation</h2>
-                    <div class="box explanation-content">${md}</div>
+                    <div class="box explanation-content" id="explanation-content">${md}</div>
                 </div>
             </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const explanationContent = document.getElementById('explanation-content');
+                    if (explanationContent && typeof marked !== 'undefined' && marked.parse) {
+                        explanationContent.innerHTML = marked.parse(explanationContent.innerText);
+                    } else if (explanationContent) {
+                        console.error('Marked library failed to load or is not defined.');
+                        explanationContent.innerHTML = '<p class="has-text-danger">Failed to render markdown content. Please try refreshing the page or check your internet connection.</p>';
+                    }
+                });
+            </script>
         `;
     } else {
         const md = data.md || "";
         content = `
             <div class="box content" id="markdown-content">${md}</div>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const markdownContent = document.getElementById('markdown-content');
+                    if (markdownContent && typeof marked !== 'undefined' && marked.parse) {
+                        markdownContent.innerHTML = marked.parse(markdownContent.innerText);
+                    } else if (markdownContent) {
+                        console.error('Marked library failed to load or is not defined.');
+                        markdownContent.innerHTML = '<p class="has-text-danger">Failed to render markdown content. Please try refreshing the page or check your internet connection.</p>';
+                    }
+                });
+            </script>
         `;
     }
 
@@ -491,7 +371,7 @@ app.get("/diagram/:system/:type", async (req, res) => {
             <link rel="stylesheet" href="/style.css">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
             <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/dist/svg-pan-zoom.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/marked@4.0.12/lib/marked.min.js" defer></script>
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.7/marked.min.js" integrity="sha512-rPuOZPx/WHMHNx2RoALKwiCDiDrCo4ekUctyTYKzBo8NGA79NcTW2gfrbcCL2RYL7RdjX2v9zR0fKyI4U4kPew==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
         </head>
         <body>
             <!-- Navbar -->
@@ -574,34 +454,6 @@ app.get("/diagram/:system/:type", async (req, res) => {
                 document.addEventListener('DOMContentLoaded', () => {
                     let scale = 1;
                     const diagramOutput = document.getElementById('diagram-output');
-                    const markdownContent = document.getElementById('markdown-content');
-
-                    // Wait for marked to load before parsing markdown
-                    function renderMarkdown() {
-                        if (markdownContent) {
-                            if (typeof marked !== 'undefined' && marked.parse) {
-                                markdownContent.innerHTML = marked.parse(markdownContent.innerText);
-                            } else {
-                                console.error('Marked library failed to load.');
-                                markdownContent.innerHTML = '<p class="has-text-danger">Failed to render markdown content. Please try refreshing the page.</p>';
-                            }
-                        }
-                    }
-
-                    // Check if marked is already loaded, otherwise wait for it
-                    if (document.querySelector('script[src*="marked.min.js"]').getAttribute('defer')) {
-                        if (typeof marked !== 'undefined') {
-                            renderMarkdown();
-                        } else {
-                            document.querySelector('script[src*="marked.min.js"]').addEventListener('load', renderMarkdown);
-                            document.querySelector('script[src*="marked.min.js"]').addEventListener('error', () => {
-                                console.error('Failed to load marked library from CDN.');
-                                if (markdownContent) {
-                                    markdownContent.innerHTML = '<p class="has-text-danger">Failed to render markdown content. Please check your internet connection and try again.</p>';
-                                }
-                            });
-                        }
-                    }
 
                     if (diagramOutput) {
                         const zoomInBtn = document.getElementById('zoom-in');
@@ -688,6 +540,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: "Internal server error" });
 });
 
+// Start the server
 app.listen(port, () => {
     console.log(`ArchViz app listening at http://localhost:${port}`);
 });

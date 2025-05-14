@@ -1,209 +1,141 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" data-theme="light">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>ArchViz | Diagram Editor</title>
-        <link
-            href="https://cdn.jsdelivr.net/npm/bulma@1.0.3/css/bulma.min.css"
-            rel="stylesheet"
-        />
-        <link rel="stylesheet" href="/style.css" />
-        <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-        />
-        <script
-            type="text/javascript"
-            src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/dist/svg-pan-zoom.min.js"
-        ></script>
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.7/marked.min.js"
-            integrity="sha512-rPuOZPx/WHMHNx2RoALKwiCDiDrCo4ekUctyTYKzBo8NGA79NcTW2gfrbcCL2RYL7RdjX2v9zR0fKyI4U4kPew=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"
-        ></script>
-    </head>
-    <body>
-        <!-- Navbar -->
-        <nav class="navbar" role="navigation" aria-label="main navigation">
-            <div class="navbar-brand">
-                <a href="/" class="navbar-item">
-                    <span class="has-text-weight-semibold">ArchViz</span>
-                </a>
-            </div>
-            <div class="navbar-menu">
-                <div class="navbar-end">
-                    <div class="navbar-item has-dropdown is-hoverable">
-                        <a class="navbar-link">Options</a>
-                        <div class="navbar-dropdown is-right">
-                            <a class="navbar-item" onclick="toggleTheme()"
-                                >Toggle theme</a
-                            >
-                            <hr class="navbar-divider" />
-                            <div class="navbar-item has-text-grey-light">
-                                <span>v</span><span>1.0.0</span>
-                            </div>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ArchViz | Diagram Editor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bulma@1.0.3/css/bulma.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/dist/svg-pan-zoom.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.7/marked.min.js" integrity="sha512-rPuOZPx/WHMHNx2RoALKwiCDiDrCo4ekUctyTYKzBo8NGA79NcTW2gfrbcCL2RYL7RdjX2v9zR0fKyI4U4kPew==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a href="/" class="navbar-item">
+                <span class="has-text-weight-semibold">ArchViz</span>
+            </a>
+        </div>
+        <div class="navbar-menu">
+            <div class="navbar-end">
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">Options</a>
+                    <div class="navbar-dropdown is-right">
+                        <a class="navbar-item" onclick="toggleTheme()">Toggle theme</a>
+                        <hr class="navbar-divider">
+                        <div class="navbar-item has-text-grey-light">
+                            <span>v</span><span>1.0.0</span>
                         </div>
                     </div>
                 </div>
-            </div>
-        </nav>
-
-        <!-- Main Layout -->
-        <div class="site-layout" id="site">
-            <!-- Sidebar -->
-            <aside class="menu p-3">
-                <p class="menu-label">General</p>
-                <ul class="menu-list">
-                    <li><a href="/" class="is-active">Home</a></li>
-                </ul>
-                <p class="menu-label">Systems</p>
-                <ul class="menu-list" id="systems-nav"></ul>
-            </aside>
-
-            <!-- Main Content -->
-            <div class="container is-fluid">
-                <h1 class="title mt-3" id="page-title">Workspace</h1>
-                <h2 class="subtitle">Manage and edit your system diagrams.</h2>
-
-                <!-- Tabs -->
-                <div class="tabs mt-3">
-                    <ul>
-                        <li class="is-active">
-                            <a href="#" onclick="showSection('systems-section')"
-                                >Systems</a
-                            >
-                        </li>
-                        <li>
-                            <a href="#" onclick="showSection('diagram-editor')"
-                                >Edit Diagram</a
-                            >
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Systems Section -->
-                <section class="content p-3" id="systems-section">
-                    <h2>Systems</h2>
-                    <div class="add-system">
-                        <input
-                            class="input is-small"
-                            type="text"
-                            id="new-system-name"
-                            placeholder="Enter system name"
-                        />
-                        <button
-                            class="button is-small is-info"
-                            id="add-system-btn"
-                        >
-                            <i class="fas fa-plus"></i> Add System
-                        </button>
-                    </div>
-                    <div id="systems-list" class="columns is-multiline"></div>
-                </section>
-
-                <!-- Diagram Editor Section -->
-                <section
-                    class="content p-3"
-                    id="diagram-editor"
-                    style="display: none"
-                >
-                    <h2>Edit Diagram</h2>
-                    <div class="editor-controls">
-                        <div class="field">
-                            <label class="label">Diagram Type</label>
-                            <div class="control">
-                                <div class="select is-fullwidth">
-                                    <select id="diagram-type">
-                                        <option value="info">Info</option>
-                                        <option value="context">Context</option>
-                                        <option value="containers">
-                                            Containers
-                                        </option>
-                                        <option value="components">
-                                            Components
-                                        </option>
-                                        <option value="code">Code</option>
-                                        <option value="deployment">
-                                            Deployment
-                                        </option>
-                                        <option value="documentation">
-                                            Documentation
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="field" id="puml-field">
-                            <label class="label">PlantUML Code</label>
-                            <div class="control">
-                                <textarea
-                                    class="textarea"
-                                    id="puml-code"
-                                    rows="10"
-                                    placeholder="Enter PlantUML C4 code..."
-                                ></textarea>
-                            </div>
-                        </div>
-                        <div class="field">
-                            <label class="label">Explanation</label>
-                            <div class="control">
-                                <textarea
-                                    class="textarea"
-                                    id="explanation"
-                                    rows="5"
-                                    placeholder="Enter explanation..."
-                                ></textarea>
-                            </div>
-                        </div>
-                        <div class="editor-actions buttons">
-                            <button class="button is-info" id="preview-btn">
-                                <i class="fas fa-eye"></i> Preview
-                            </button>
-                            <button
-                                class="button is-warning"
-                                id="reset-preview-btn"
-                            >
-                                <i class="fas fa-undo"></i> Reset Preview
-                            </button>
-                            <button class="button is-success" id="save-btn">
-                                <i class="fas fa-save"></i> Save
-                            </button>
-                        </div>
-                    </div>
-                    <div id="preview-output" class="box"></div>
-                    <p class="help">
-                        Use C4 model syntax (e.g., !include C4-PlantUML). Click
-                        elements in the preview to drill down.
-                    </p>
-                </section>
             </div>
         </div>
+    </nav>
 
-        <script>
-            let systems = {};
-            let currentSystem = null;
-            let currentType = "info";
+    <!-- Main Layout -->
+    <div class="site-layout" id="site">
+        <!-- Sidebar -->
+        <aside class="menu p-3">
+            <p class="menu-label">General</p>
+            <ul class="menu-list">
+                <li><a href="/" class="is-active">Home</a></li>
+            </ul>
+            <p class="menu-label">Systems</p>
+            <ul class="menu-list" id="systems-nav"></ul>
+        </aside>
 
-            async function loadSystems() {
-                try {
-                    const response = await fetch("/api/systems");
-                    systems = await response.json();
-                    updateSystemsList();
-                    updateSidebar();
-                } catch (err) {
-                    console.error("Error loading systems:", err);
-                }
+        <!-- Main Content -->
+        <div class="container is-fluid">
+            <h1 class="title mt-3" id="page-title">Workspace</h1>
+            <h2 class="subtitle">Manage and edit your system diagrams.</h2>
+
+            <!-- Tabs -->
+            <div class="tabs mt-3">
+                <ul>
+                    <li class="is-active"><a href="#" onclick="showSection('systems-section')">Systems</a></li>
+                    <li><a href="#" onclick="showSection('diagram-editor')">Edit Diagram</a></li>
+                </ul>
+            </div>
+
+            <!-- Systems Section -->
+            <section class="content p-3" id="systems-section">
+                <h2>Systems</h2>
+                <div class="add-system">
+                    <input class="input is-small" type="text" id="new-system-name" placeholder="Enter system name">
+                    <button class="button is-small is-info" id="add-system-btn"><i class="fas fa-plus"></i> Add System</button>
+                </div>
+                <div id="systems-list" class="columns is-multiline"></div>
+            </section>
+
+            <!-- Diagram Editor Section -->
+            <section class="content p-3" id="diagram-editor" style="display: none;">
+                <h2>Edit Diagram</h2>
+                <div class="editor-controls">
+                    <div class="field">
+                        <label class="label">Diagram Type</label>
+                        <div class="control">
+                            <div class="select is-fullwidth">
+                                <select id="diagram-type">
+                                    <option value="info">Info</option>
+                                    <option value="context">Context</option>
+                                    <option value="containers">Containers</option>
+                                    <option value="components">Components</option>
+                                    <option value="code">Code</option>
+                                    <option value="deployment">Deployment</option>
+                                    <option value="documentation">Documentation</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field" id="puml-field">
+                        <label class="label">PlantUML Code</label>
+                        <div class="control">
+                            <textarea class="textarea" id="puml-code" rows="10" placeholder="Enter PlantUML C4 code..."></textarea>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Explanation</label>
+                        <div class="control">
+                            <textarea class="textarea" id="explanation" rows="5" placeholder="Enter explanation..."></textarea>
+                        </div>
+                    </div>
+                    <div class="editor-actions buttons">
+                        <button class="button is-info" id="preview-btn"><i class="fas fa-eye"></i> Preview</button>
+                        <button class="button is-warning" id="reset-preview-btn"><i class="fas fa-undo"></i> Reset Preview</button>
+                        <button class="button is-success" id="save-btn"><i class="fas fa-save"></i> Save</button>
+                    </div>
+                </div>
+                <div id="preview-output" class="box"></div>
+                <p class="help">Use C4 model syntax (e.g., !include C4-PlantUML). Click elements in the preview to drill down.</p>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        let systems = {};
+        let currentSystem = null;
+        let currentType = 'info';
+
+        async function loadSystems() {
+            try {
+                const response = await fetch('/api/systems');
+                systems = await response.json();
+                updateSystemsList();
+                updateSidebar();
+            } catch (err) {
+                console.error('Error loading systems:', err);
             }
+        }
 
-            function updateSystemsList() {
-                const list = document.getElementById("systems-list");
-                list.innerHTML = "";
-                for (let system in systems) {
-                    const div = document.createElement("div");
-                    div.className = "column is-one-third";
-                    div.innerHTML = `
+        function updateSystemsList() {
+            const list = document.getElementById('systems-list');
+            list.innerHTML = '';
+            for (let system in systems) {
+                const div = document.createElement('div');
+                div.className = 'column is-one-third';
+                div.innerHTML = `
                     <div class="box">
                         <h3 class="title is-5"><i class="fas fa-cube"></i> ${system}</h3>
                         <div class="buttons">
@@ -212,318 +144,216 @@
                         </div>
                     </div>
                 `;
-                    list.appendChild(div);
+                list.appendChild(div);
+            }
+        }
+
+        function updateSidebar() {
+            const navGroup = document.getElementById('systems-nav');
+            navGroup.innerHTML = '';
+            for (let system in systems) {
+                const li = document.createElement('li');
+                li.innerHTML = `<a href="/diagram/${system}/info">${system}</a>`;
+                navGroup.appendChild(li);
+            }
+        }
+
+        async function addSystem() {
+            const systemNameInput = document.getElementById('new-system-name');
+            const systemName = systemNameInput.value.trim();
+            if (!systemName) {
+                alert('Please enter a system name.');
+                return;
+            }
+            try {
+                const response = await fetch('/api/systems', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: systemName })
+                });
+                if (response.ok) {
+                    systemNameInput.value = '';
+                    await loadSystems();
+                } else {
+                    const error = await response.json();
+                    alert(`Error adding system: ${error.error}`);
+                }
+            } catch (err) {
+                console.error('Error adding system:', err);
+                alert('Failed to add system.');
+            }
+        }
+
+        async function editSystem(systemName) {
+            currentSystem = systemName;
+            document.getElementById('systems-section').style.display = 'none';
+            document.getElementById('diagram-editor').style.display = 'block';
+            document.getElementById('page-title').textContent = `${systemName} - Edit`;
+            document.querySelector('.tabs a[href="#"]').parentElement.classList.remove('is-active');
+            document.querySelector('.tabs a[href="#"][onclick*="diagram-editor"]').parentElement.classList.add('is-active');
+
+            const typeSelect = document.getElementById('diagram-type');
+            for (let type of ['info', 'context', 'containers', 'components', 'code', 'deployment', 'documentation']) {
+                const data = systems[systemName][type];
+                const puml = data.puml || '';
+                const md = data.md || '';
+                if (puml || md) {
+                    typeSelect.value = type;
+                    document.getElementById('puml-code').value = puml;
+                    document.getElementById('explanation').value = md;
+                    currentType = type;
+                    break;
                 }
             }
-
-            function updateSidebar() {
-                const navGroup = document.getElementById("systems-nav");
-                navGroup.innerHTML = "";
-                for (let system in systems) {
-                    const li = document.createElement("li");
-                    li.innerHTML = `<a href="/diagram/${system}/info">${system}</a>`;
-                    navGroup.appendChild(li);
-                }
+            if (!document.getElementById('puml-code').value && !document.getElementById('explanation').value) {
+                document.getElementById('puml-code').value = '';
+                document.getElementById('explanation').value = '';
             }
+            togglePumlField();
+        }
 
-            async function addSystem() {
-                const systemNameInput =
-                    document.getElementById("new-system-name");
-                const systemName = systemNameInput.value.trim();
-                if (!systemName) {
-                    alert("Please enter a system name.");
-                    return;
-                }
-                try {
-                    const response = await fetch("/api/systems", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ name: systemName }),
+        function showSection(sectionId) {
+            document.getElementById('systems-section').style.display = sectionId === 'systems-section' ? 'block' : 'none';
+            document.getElementById('diagram-editor').style.display = sectionId === 'diagram-editor' ? 'block' : 'none';
+            document.querySelectorAll('.tabs li').forEach(li => li.classList.remove('is-active'));
+            document.querySelector(`.tabs a[onclick="showSection('${sectionId}')"]`).parentElement.classList.add('is-active');
+            if (sectionId === 'systems-section') {
+                document.getElementById('page-title').textContent = 'Workspace';
+                currentSystem = null;
+            }
+        }
+
+        function togglePumlField() {
+            const type = document.getElementById('diagram-type').value;
+            const pumlField = document.getElementById('puml-field');
+            pumlField.style.display = ['context', 'containers', 'components', 'code', 'deployment'].includes(type) ? 'block' : 'none';
+        }
+
+        function renderMarkdown(text) {
+            if (!text) return '';
+            if (typeof marked !== 'undefined' && marked.parse) {
+                return `<div class="content">${marked.parse(text)}</div>`;
+            } else {
+                console.error('Marked library failed to load or is not defined.');
+                return '<p class="has-text-danger">Failed to render markdown content. Please try refreshing the page or check your internet connection.</p>';
+            }
+        }
+
+        async function previewDiagram() {
+            const type = document.getElementById('diagram-type').value;
+            const pumlCode = document.getElementById('puml-code').value;
+            const explanation = document.getElementById('explanation').value;
+
+            // Wait for marked to load before proceeding
+            if (['info', 'documentation'].includes(type)) {
+                if (typeof marked === 'undefined') {
+                    const markedScript = document.querySelector('script[src*="marked.min.js"]');
+                    await new Promise((resolve, reject) => {
+                        if (markedScript.getAttribute('defer')) {
+                            markedScript.addEventListener('load', resolve);
+                            markedScript.addEventListener('error', () => {
+                                console.error('Failed to load marked library from CDN.');
+                                reject(new Error('Marked library failed to load.'));
+                            });
+                        } else {
+                            resolve();
+                        }
+                    }).catch(() => {
+                        document.getElementById('preview-output').innerHTML = '<p class="has-text-danger">Failed to render markdown content. Please check your internet connection and try again.</p>';
+                        return;
                     });
-                    if (response.ok) {
-                        systemNameInput.value = "";
-                        await loadSystems();
+                }
+            }
+
+            if (['context', 'containers', 'components', 'code', 'deployment'].includes(type) && pumlCode) {
+                try {
+                    const response = await fetch('/preview', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ pumlCode })
+                    });
+                    if (!response.ok) {
+                        const text = await response.text();
+                        throw new Error(`Server responded with status ${response.status}: ${text}`);
+                    }
+                    const contentType = response.headers.get('content-type');
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await response.text();
+                        throw new Error(`Expected JSON response, but received ${contentType}: ${text}`);
+                    }
+                    const result = await response.json();
+                    if (result.svg) {
+                        document.getElementById('preview-output').innerHTML = `<div>${result.svg}</div><p>${explanation}</p>`;
                     } else {
-                        const error = await response.json();
-                        alert(`Error adding system: ${error.error}`);
+                        document.getElementById('preview-output').innerHTML = `<p class="has-text-danger">${result.error || 'Error rendering diagram.'}</p>`;
                     }
                 } catch (err) {
-                    console.error("Error adding system:", err);
-                    alert("Failed to add system.");
+                    console.error('Fetch error:', err);
+                    document.getElementById('preview-output').innerHTML = `<p class="has-text-danger">Failed to preview diagram: ${err.message}</p>`;
                 }
+            } else {
+                document.getElementById('preview-output').innerHTML = renderMarkdown(explanation);
             }
+        }
 
-            async function editSystem(systemName) {
-                currentSystem = systemName;
-                document.getElementById("systems-section").style.display =
-                    "none";
-                document.getElementById("diagram-editor").style.display =
-                    "block";
-                document.getElementById("page-title").textContent =
-                    `${systemName} - Edit`;
-                document
-                    .querySelector('.tabs a[href="#"]')
-                    .parentElement.classList.remove("is-active");
-                document
-                    .querySelector(
-                        '.tabs a[href="#"][onclick*="diagram-editor"]',
-                    )
-                    .parentElement.classList.add("is-active");
-
-                const typeSelect = document.getElementById("diagram-type");
-                for (let type of [
-                    "info",
-                    "context",
-                    "containers",
-                    "components",
-                    "code",
-                    "deployment",
-                    "documentation",
-                ]) {
-                    const data = systems[systemName][type];
-                    const puml = data.puml || "";
-                    const md = data.md || "";
-                    if (puml || md) {
-                        typeSelect.value = type;
-                        document.getElementById("puml-code").value = puml;
-                        document.getElementById("explanation").value = md;
-                        currentType = type;
-                        break;
-                    }
-                }
-                if (
-                    !document.getElementById("puml-code").value &&
-                    !document.getElementById("explanation").value
-                ) {
-                    document.getElementById("puml-code").value = "";
-                    document.getElementById("explanation").value = "";
-                }
-                togglePumlField();
-            }
-
-            function showSection(sectionId) {
-                document.getElementById("systems-section").style.display =
-                    sectionId === "systems-section" ? "block" : "none";
-                document.getElementById("diagram-editor").style.display =
-                    sectionId === "diagram-editor" ? "block" : "none";
-                document
-                    .querySelectorAll(".tabs li")
-                    .forEach((li) => li.classList.remove("is-active"));
-                document
-                    .querySelector(
-                        `.tabs a[onclick="showSection('${sectionId}')"]`,
-                    )
-                    .parentElement.classList.add("is-active");
-                if (sectionId === "systems-section") {
-                    document.getElementById("page-title").textContent =
-                        "Workspace";
-                    currentSystem = null;
-                }
-            }
-
-            function togglePumlField() {
-                const type = document.getElementById("diagram-type").value;
-                const pumlField = document.getElementById("puml-field");
-                pumlField.style.display = [
-                    "context",
-                    "containers",
-                    "components",
-                    "code",
-                    "deployment",
-                ].includes(type)
-                    ? "block"
-                    : "none";
-            }
-
-            function renderMarkdown(text) {
-                if (!text) return "";
-                if (typeof marked !== "undefined" && marked.parse) {
-                    return `<div class="content">${marked.parse(text)}</div>`;
-                } else {
-                    console.error("Marked library failed to load.");
-                    return '<p class="has-text-danger">Failed to render markdown content. Please try refreshing the page.</p>';
-                }
-            }
-
-            async function previewDiagram() {
-                const type = document.getElementById("diagram-type").value;
-                const pumlCode = document.getElementById("puml-code").value;
-                const explanation =
-                    document.getElementById("explanation").value;
-
-                // Wait for marked to load before proceeding
-                if (["info", "documentation"].includes(type)) {
-                    if (typeof marked === "undefined") {
-                        const markedScript = document.querySelector(
-                            'script[src*="marked.min.js"]',
-                        );
-                        await new Promise((resolve, reject) => {
-                            if (markedScript.getAttribute("defer")) {
-                                markedScript.addEventListener("load", resolve);
-                                markedScript.addEventListener("error", () => {
-                                    console.error(
-                                        "Failed to load marked library from CDN.",
-                                    );
-                                    reject(
-                                        new Error(
-                                            "Marked library failed to load.",
-                                        ),
-                                    );
-                                });
-                            } else {
-                                resolve();
-                            }
-                        }).catch(() => {
-                            document.getElementById(
-                                "preview-output",
-                            ).innerHTML =
-                                '<p class="has-text-danger">Failed to render markdown content. Please check your internet connection and try again.</p>';
-                            return;
-                        });
-                    }
-                }
-
-                if (
-                    [
-                        "context",
-                        "containers",
-                        "components",
-                        "code",
-                        "deployment",
-                    ].includes(type) &&
-                    pumlCode
-                ) {
-                    try {
-                        const response = await fetch("/preview", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({ pumlCode }),
-                        });
-                        if (!response.ok) {
-                            const text = await response.text();
-                            throw new Error(
-                                `Server responded with status ${response.status}: ${text}`,
-                            );
-                        }
-                        const contentType =
-                            response.headers.get("content-type");
-                        if (
-                            !contentType ||
-                            !contentType.includes("application/json")
-                        ) {
-                            const text = await response.text();
-                            throw new Error(
-                                `Expected JSON response, but received ${contentType}: ${text}`,
-                            );
-                        }
-                        const result = await response.json();
-                        if (result.svg) {
-                            document.getElementById(
-                                "preview-output",
-                            ).innerHTML =
-                                `<div>${result.svg}</div><p>${explanation}</p>`;
+        async function saveDiagram() {
+            if (currentSystem) {
+                const type = document.getElementById('diagram-type').value;
+                const puml = document.getElementById('puml-code').value;
+                const md = document.getElementById('explanation').value;
+                try {
+                    const response = await fetch(`/api/systems/${currentSystem}/${type}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ puml, md })
+                    });
+                    if (response.ok) {
+                        if (['context', 'containers', 'components', 'code', 'deployment'].includes(type)) {
+                            systems[currentSystem][type] = { puml, md };
                         } else {
-                            document.getElementById(
-                                "preview-output",
-                            ).innerHTML =
-                                `<p class="has-text-danger">${result.error || "Error rendering diagram."}</p>`;
+                            systems[currentSystem][type] = { md };
                         }
-                    } catch (err) {
-                        console.error("Fetch error:", err);
-                        document.getElementById("preview-output").innerHTML =
-                            `<p class="has-text-danger">Failed to preview diagram: ${err.message}</p>`;
+                        await loadSystems();
+                        alert('Diagram saved!');
+                        showSection('systems-section');
+                    } else {
+                        console.error('Error saving diagram:', await response.json());
                     }
-                } else {
-                    document.getElementById("preview-output").innerHTML =
-                        renderMarkdown(explanation);
+                } catch (err) {
+                    console.error('Error saving diagram:', err);
                 }
             }
+        }
 
-            async function saveDiagram() {
-                if (currentSystem) {
-                    const type = document.getElementById("diagram-type").value;
-                    const puml = document.getElementById("puml-code").value;
-                    const md = document.getElementById("explanation").value;
-                    try {
-                        const response = await fetch(
-                            `/api/systems/${currentSystem}/${type}`,
-                            {
-                                method: "PUT",
-                                headers: { "Content-Type": "application/json" },
-                                body: JSON.stringify({ puml, md }),
-                            },
-                        );
-                        if (response.ok) {
-                            if (
-                                [
-                                    "context",
-                                    "containers",
-                                    "components",
-                                    "code",
-                                    "deployment",
-                                ].includes(type)
-                            ) {
-                                systems[currentSystem][type] = { puml, md };
-                            } else {
-                                systems[currentSystem][type] = { md };
-                            }
-                            await loadSystems();
-                            alert("Diagram saved!");
-                            showSection("systems-section");
-                        } else {
-                            console.error(
-                                "Error saving diagram:",
-                                await response.json(),
-                            );
-                        }
-                    } catch (err) {
-                        console.error("Error saving diagram:", err);
-                    }
-                }
+        function resetPreview() {
+            document.getElementById('preview-output').innerHTML = '';
+        }
+
+        document.getElementById('diagram-type').addEventListener('change', (e) => {
+            currentType = e.target.value;
+            togglePumlField();
+            if (currentSystem) {
+                const data = systems[currentSystem][currentType];
+                const puml = data.puml || '';
+                const md = data.md || '';
+                document.getElementById('puml-code').value = puml;
+                document.getElementById('explanation').value = md;
             }
+        });
 
-            function resetPreview() {
-                document.getElementById("preview-output").innerHTML = "";
-            }
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSystems();
+            document.getElementById('add-system-btn').addEventListener('click', addSystem);
+            document.getElementById('preview-btn').addEventListener('click', previewDiagram);
+            document.getElementById('save-btn').addEventListener('click', saveDiagram);
+            document.getElementById('reset-preview-btn').addEventListener('click', resetPreview);
+        });
 
-            document
-                .getElementById("diagram-type")
-                .addEventListener("change", (e) => {
-                    currentType = e.target.value;
-                    togglePumlField();
-                    if (currentSystem) {
-                        const data = systems[currentSystem][currentType];
-                        const puml = data.puml || "";
-                        const md = data.md || "";
-                        document.getElementById("puml-code").value = puml;
-                        document.getElementById("explanation").value = md;
-                    }
-                });
-
-            document.addEventListener("DOMContentLoaded", () => {
-                loadSystems();
-                document
-                    .getElementById("add-system-btn")
-                    .addEventListener("click", addSystem);
-                document
-                    .getElementById("preview-btn")
-                    .addEventListener("click", previewDiagram);
-                document
-                    .getElementById("save-btn")
-                    .addEventListener("click", saveDiagram);
-                document
-                    .getElementById("reset-preview-btn")
-                    .addEventListener("click", resetPreview);
-            });
-
-            function toggleTheme() {
-                const html = document.documentElement;
-                const currentTheme = html.getAttribute("data-theme");
-                html.setAttribute(
-                    "data-theme",
-                    currentTheme === "light" ? "dark" : "light",
-                );
-            }
-        </script>
-    </body>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            html.setAttribute('data-theme', currentTheme === 'light' ? 'dark' : 'light');
+        }
+    </script>
+</body>
 </html>
