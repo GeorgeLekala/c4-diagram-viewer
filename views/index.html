@@ -17,73 +17,90 @@
                     <h2><i class="fas fa-sitemap"></i> ArchViz</h2>
                 </div>
                 <nav class="sidebar-nav">
-                    <a href="/" class="nav-item"
-                        ><i class="fas fa-home"></i> Home</a
-                    >
+                    <a href="/" class="nav-item">
+                        <i class="fas fa-home"></i> Home
+                    </a>
                     <div id="systems-nav" class="nav-group"></div>
                 </nav>
             </aside>
             <main class="main-content">
                 <header>
-                    <h1 id="page-title">Workspace</h1>
+                    <h1 id="page-title">System Title</h1>
+                    <p class="system-description">Allows customers to view information about their bank accounts, and make payments.</p>
+                    <nav class="diagram-nav">
+                        <a href="#" class="active">Info</a>
+                        <a href="#">Context views</a>
+                        <a href="#">Container views</a>
+                        <a href="#">Component views</a>
+                        <a href="#">Code views</a>
+                        <a href="#">Dynamic views</a>
+                        <a href="#">Deployment views</a>
+                        <a href="#">Dependencies</a>
+                        <a href="#">Decisions</a>
+                        <a href="#">Documentation</a>
+                    </nav>
                 </header>
-                <section class="systems-section" id="systems-section">
-                    <h2>Systems</h2>
-                    <div class="add-system">
-                        <input
-                            type="text"
-                            id="new-system-name"
-                            placeholder="Enter system name"
-                        />
-                        <button id="add-system-btn">
-                            <i class="fas fa-plus"></i> Add System
-                        </button>
-                    </div>
-                    <div id="systems-list" class="systems-list"></div>
-                </section>
-                <section
-                    class="diagram-editor"
-                    style="display: none"
-                    id="diagram-editor"
-                >
-                    <h2>Edit Diagram</h2>
-                    <div class="editor-controls">
-                        <select id="diagram-type">
-                            <option value="context">Context</option>
-                            <option value="containers">Containers</option>
-                            <option value="components">Components</option>
-                        </select>
-                        <textarea
-                            id="puml-code"
-                            rows="10"
-                            placeholder="Enter PlantUML C4 code..."
-                        ></textarea>
-                        <textarea
-                            id="explanation"
-                            rows="5"
-                            placeholder="Enter explanation..."
-                        ></textarea>
-                        <div class="editor-actions">
-                            <button id="preview-btn">
-                                <i class="fas fa-eye"></i> Preview
-                            </button>
-                            <button id="reset-preview-btn">
-                                <i class="fas fa-undo"></i> Reset Preview
-                            </button>
-                            <button id="save-btn">
-                                <i class="fas fa-save"></i> Save
-                            </button>
+
+                <div class="content-area">
+                    <section class="description-section">
+                        <h2>Description</h2>
+                        <p>This is our fancy Internet Banking System.</p>
+
+                        <h2>Vision</h2>
+                        <p>One system to rule them all!</p>
+
+                        <h2>References</h2>
+                        <ul>
+                            <li>Source Code on GitHub: <a href="#">Link to repository</a></li>
+                        </ul>
+
+                        <h2>Properties</h2>
+                        <table class="properties-table">
+                            <tr>
+                                <th>Name</th>
+                                <th>Value</th>
+                            </tr>
+                            <tr>
+                                <td>Development Team</td>
+                                <td>Dev/Internet Services</td>
+                            </tr>
+                            <tr>
+                                <td>Owner</td>
+                                <td>Customer Services</td>
+                            </tr>
+                        </table>
+                    </section>
+
+                    <section class="diagram-editor" style="display: none" id="diagram-editor">
+                        <h2>Edit Diagram</h2>
+                        <div class="editor-controls">
+                            <select id="diagram-type">
+                                <option value="context">Context</option>
+                                <option value="containers">Containers</option>
+                                <option value="components">Components</option>
+                            </select>
+                            <textarea id="puml-code" rows="10" placeholder="Enter PlantUML C4 code..."></textarea>
+                            <textarea id="explanation" rows="5" placeholder="Enter explanation..."></textarea>
+                            <div class="editor-actions">
+                                <button id="preview-btn">
+                                    <i class="fas fa-eye"></i> Preview
+                                </button>
+                                <button id="reset-preview-btn">
+                                    <i class="fas fa-undo"></i> Reset Preview
+                                </button>
+                                <button id="save-btn">
+                                    <i class="fas fa-save"></i> Save
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <div id="preview-output" class="preview-output"></div>
-                    <p class="help-text">
-                        Use C4 model syntax (e.g., !include C4-PlantUML). Click
-                        elements in the preview to drill down.
-                    </p>
-                </section>
+                        <div id="preview-output" class="preview-output"></div>
+                        <p class="help-text">
+                            Use C4 model syntax (e.g., !include C4-PlantUML). Click elements in the preview to drill down.
+                        </p>
+                    </section>
+                </div>
             </main>
         </div>
-
         <script>
             let systems = {};
             let currentSystem = null;
