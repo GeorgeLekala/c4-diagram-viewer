@@ -313,8 +313,8 @@ app.get("/diagram/:system/:type", async (req, res) => {
             }
         }
         content = `
-            <div class="columns">
-                <div class="column is-two-thirds">
+            <div class="columns is-multiline">
+                <div class="column is-full">
                     <h2>Rendered Diagram</h2>
                     <div class="box diagram-output" id="diagram-output">
                         ${diagramSvg}
@@ -325,7 +325,7 @@ app.get("/diagram/:system/:type", async (req, res) => {
                         <button class="button is-info" id="zoom-reset"><i class="fas fa-undo"></i> Reset</button>
                     </div>
                 </div>
-                <div class="column is-one-third">
+                <div class="column is-full">
                     <h2>Explanation</h2>
                     <div class="box explanation-content" id="explanation-content">${md}</div>
                 </div>
