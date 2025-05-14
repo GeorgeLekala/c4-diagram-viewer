@@ -52,6 +52,7 @@
                             <option value="context">Context</option>
                             <option value="containers">Containers</option>
                             <option value="components">Components</option>
+                            <option value="code">Code</option>
                         </select>
                         <textarea
                             id="puml-code"
@@ -177,7 +178,7 @@
 
                 // Load existing diagram data
                 const typeSelect = document.getElementById("diagram-type");
-                for (let type of ["context", "containers", "components"]) {
+                for (let type of ["context", "containers", "components", "code"]) {
                     const puml = systems[systemName][type].puml || "";
                     const md = systems[systemName][type].md || "";
                     if (puml || md) {
@@ -332,7 +333,7 @@
                     .addEventListener("click", previewDiagram);
                 document
                     .getElementById("save-btn")
-                    .addEventListener("click", saveDiagram);
+                    .addEventListener("click, saveDiagram);
                 document
                     .getElementById("reset-preview-btn")
                     .addEventListener("click", resetPreview);
