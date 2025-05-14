@@ -391,3 +391,21 @@ html[data-theme="dark"] pre {
         min-height: 400px;
     }
 }
+
+/* Custom Button Styles */
+.button {
+    padding: 4px 8px; /* Reduced padding */
+    font-size: 0.9em; /* Smaller font size */
+    height: 28px; /* Reduced height */
+    line-height: 1; /* Adjust line height for consistency */
+}
+
+.button i {
+    margin-right: 4px; /* Reduced icon spacing */
+}
+
+.button.is-small {
+    padding: 2px 6px; /* Even smaller for small buttons */
+    font-size: 0.8em;
+    height: 24px;
+}

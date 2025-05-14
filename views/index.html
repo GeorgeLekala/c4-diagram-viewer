@@ -200,7 +200,10 @@
                     div.innerHTML = `
                     <div class="box">
                         <h3 class="title is-5"><i class="fas fa-cube"></i> ${system}</h3>
-                        <button class="button is-info is-fullwidth" data-system="${system}">Edit Diagrams</button>
+       <div class="buttons">
+                            <a href="/diagram/${system}/info" class="button is-info is-fullwidth">View Diagrams</a>
+                            <button class="button is-info is-fullwidth" data-system="${system}" onclick="editSystem('${system}')">Edit Diagrams</button>
+                        </div>
                     </div>
                 `;
                     div.querySelector("button").addEventListener("click", () =>
