@@ -17,6 +17,12 @@
             type="text/javascript"
             src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/dist/svg-pan-zoom.min.js"
         ></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.7/marked.min.js"
+            integrity="sha512-rPuOZPx/WHMHNx2RoALKwiCDiDrCo4ekUctyTYKzBo8NGA79NcTW2gfrbcCL2RYL7RdjX2v9zR0fKyI4U4kPew=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
     </head>
     <body>
         <!-- Navbar -->
@@ -200,15 +206,12 @@
                     div.innerHTML = `
                     <div class="box">
                         <h3 class="title is-5"><i class="fas fa-cube"></i> ${system}</h3>
-       <div class="buttons">
+                        <div class="buttons">
                             <a href="/diagram/${system}/info" class="button is-info is-fullwidth">View Diagrams</a>
                             <button class="button is-info is-fullwidth" data-system="${system}" onclick="editSystem('${system}')">Edit Diagrams</button>
                         </div>
                     </div>
                 `;
-                    div.querySelector("button").addEventListener("click", () =>
-                        editSystem(system),
-                    );
                     list.appendChild(div);
                 }
             }
@@ -332,11 +335,53 @@
                     : "none";
             }
 
+            function renderMarkdown(text) {
+                if (!text) return "";
+                if (typeof marked !== "undefined" && marked.parse) {
+                    return `<div class="content">${marked.parse(text)}</div>`;
+                } else {
+                    console.error("Marked library failed to load.");
+                    return '<p class="has-text-danger">Failed to render markdown content. Please try refreshing the page.</p>';
+                }
+            }
+
             async function previewDiagram() {
                 const type = document.getElementById("diagram-type").value;
                 const pumlCode = document.getElementById("puml-code").value;
                 const explanation =
                     document.getElementById("explanation").value;
+
+                // Wait for marked to load before proceeding
+                if (["info", "documentation"].includes(type)) {
+                    if (typeof marked === "undefined") {
+                        const markedScript = document.querySelector(
+                            'script[src*="marked.min.js"]',
+                        );
+                        await new Promise((resolve, reject) => {
+                            if (markedScript.getAttribute("defer")) {
+                                markedScript.addEventListener("load", resolve);
+                                markedScript.addEventListener("error", () => {
+                                    console.error(
+                                        "Failed to load marked library from CDN.",
+                                    );
+                                    reject(
+                                        new Error(
+                                            "Marked library failed to load.",
+                                        ),
+                                    );
+                                });
+                            } else {
+                                resolve();
+                            }
+                        }).catch(() => {
+                            document.getElementById(
+                                "preview-output",
+                            ).innerHTML =
+                                '<p class="has-text-danger">Failed to render markdown content. Please check your internet connection and try again.</p>';
+                            return;
+                        });
+                    }
+                }
 
                 if (
                     [
@@ -390,7 +435,7 @@
                     }
                 } else {
                     document.getElementById("preview-output").innerHTML =
-                        `<div class="box">${explanation}</div>`;
+                        renderMarkdown(explanation);
                 }
             }
 

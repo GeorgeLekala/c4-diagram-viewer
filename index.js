@@ -470,19 +470,13 @@ app.get("/diagram/:system/:type", async (req, res) => {
                 <div class="column is-one-third">
                     <h2>Explanation</h2>
                     <div class="box explanation-content">${md}</div>
-                    <h2>Diagram Code (PlantUML)</h2>
-                    <div class="box">
-                        <pre><code>${puml.replace(/</g, "<").replace(/>/g, ">")}</code></pre>
-                    </div>
                 </div>
             </div>
         `;
     } else {
         const md = data.md || "";
         content = `
-            <div class="box">
-                ${md}
-            </div>
+            <div class="box content" id="markdown-content">${md}</div>
         `;
     }
 
@@ -497,6 +491,7 @@ app.get("/diagram/:system/:type", async (req, res) => {
             <link rel="stylesheet" href="/style.css">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
             <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/dist/svg-pan-zoom.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/marked@4.0.12/lib/marked.min.js" defer></script>
         </head>
         <body>
             <!-- Navbar -->
@@ -579,6 +574,35 @@ app.get("/diagram/:system/:type", async (req, res) => {
                 document.addEventListener('DOMContentLoaded', () => {
                     let scale = 1;
                     const diagramOutput = document.getElementById('diagram-output');
+                    const markdownContent = document.getElementById('markdown-content');
+
+                    // Wait for marked to load before parsing markdown
+                    function renderMarkdown() {
+                        if (markdownContent) {
+                            if (typeof marked !== 'undefined' && marked.parse) {
+                                markdownContent.innerHTML = marked.parse(markdownContent.innerText);
+                            } else {
+                                console.error('Marked library failed to load.');
+                                markdownContent.innerHTML = '<p class="has-text-danger">Failed to render markdown content. Please try refreshing the page.</p>';
+                            }
+                        }
+                    }
+
+                    // Check if marked is already loaded, otherwise wait for it
+                    if (document.querySelector('script[src*="marked.min.js"]').getAttribute('defer')) {
+                        if (typeof marked !== 'undefined') {
+                            renderMarkdown();
+                        } else {
+                            document.querySelector('script[src*="marked.min.js"]').addEventListener('load', renderMarkdown);
+                            document.querySelector('script[src*="marked.min.js"]').addEventListener('error', () => {
+                                console.error('Failed to load marked library from CDN.');
+                                if (markdownContent) {
+                                    markdownContent.innerHTML = '<p class="has-text-danger">Failed to render markdown content. Please check your internet connection and try again.</p>';
+                                }
+                            });
+                        }
+                    }
+
                     if (diagramOutput) {
                         const zoomInBtn = document.getElementById('zoom-in');
                         const zoomOutBtn = document.getElementById('zoom-out');
