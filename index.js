@@ -1,13 +1,13 @@
-const express = require('express');
-const fs = require('fs').promises;
-const path = require('path');
+const express = require("express");
+const fs = require("fs").promises;
+const path = require("path");
 
 const app = express();
 const port = 3000;
 
-const VIEWS_DIR = path.join(__dirname, 'views');
-const PUBLIC_DIR = path.join(__dirname, 'public');
-const DIAGRAMS_DIR = path.join(__dirname, 'diagrams');
+const VIEWS_DIR = path.join(__dirname, "views");
+const PUBLIC_DIR = path.join(__dirname, "public");
+const DIAGRAMS_DIR = path.join(__dirname, "diagrams");
 
 // Ensure the diagrams directory exists and initialize with default data if empty
 async function initializeDiagramsDir() {
@@ -15,16 +15,21 @@ async function initializeDiagramsDir() {
         await fs.mkdir(DIAGRAMS_DIR, { recursive: true });
         const systems = await fs.readdir(DIAGRAMS_DIR);
         if (systems.length === 0) {
-            const systemXDir = path.join(DIAGRAMS_DIR, 'System X');
+            const systemXDir = path.join(DIAGRAMS_DIR, "System X");
             await fs.mkdir(systemXDir);
             // Info
-            await fs.writeFile(path.join(systemXDir, 'info.md'), `# System X Info
+            await fs.writeFile(
+                path.join(systemXDir, "info.md"),
+                `# System X Info
 - **Description**: This is a sample system for demonstration purposes.
 - **Vision**: To provide a scalable architecture visualization tool.
 - **References**:
-  - [C4 Model](https://c4model.com)`);
+  - [C4 Model](https://c4model.com)`,
+            );
             // Context
-            await fs.writeFile(path.join(systemXDir, 'context.puml'), `@startuml
+            await fs.writeFile(
+                path.join(systemXDir, "context.puml"),
+                `@startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
 title System Context Diagram for System X
 Person(user, "User", "A person interacting with System X")
@@ -33,14 +38,20 @@ System_Ext(ext_sys, "External System", "An external service providing data or fu
 Rel(user, sys_x, "Uses", "HTTPS")
 Rel(sys_x, ext_sys, "Integrates with", "API/JSON")
 SHOW_LEGEND()
-@enduml`);
-            await fs.writeFile(path.join(systemXDir, 'context.md'), `# System X Context Diagram
+@enduml`,
+            );
+            await fs.writeFile(
+                path.join(systemXDir, "context.md"),
+                `# System X Context Diagram
 This diagram shows the high-level context of System X, including:
 - **User**: Interacts with System X via HTTPS.
 - **System X**: The core application.
-- **External System**: Provides data via API/JSON.`);
+- **External System**: Provides data via API/JSON.`,
+            );
             // Containers
-            await fs.writeFile(path.join(systemXDir, 'containers.puml'), `@startuml
+            await fs.writeFile(
+                path.join(systemXDir, "containers.puml"),
+                `@startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 title Container Diagram for System X
 Person(user, "User", "A person interacting with System X")
@@ -55,15 +66,21 @@ Rel(web_app, api, "Calls", "JSON/HTTPS")
 Rel(api, db, "Reads/Writes", "JDBC")
 Rel(api, ext_sys, "Integrates with", "API/JSON")
 SHOW_LEGEND()
-@enduml`);
-            await fs.writeFile(path.join(systemXDir, 'containers.md'), `# System X Container Diagram
+@enduml`,
+            );
+            await fs.writeFile(
+                path.join(systemXDir, "containers.md"),
+                `# System X Container Diagram
 This diagram zooms into System X, showing:
 - **Web App**: Delivers the UI using React.
 - **API**: Handles logic with Spring Boot.
 - **Database**: Stores data in PostgreSQL.
-- **External System**: Integrated via API/JSON.`);
+- **External System**: Integrated via API/JSON.`,
+            );
             // Components
-            await fs.writeFile(path.join(systemXDir, 'components.puml'), `@startuml
+            await fs.writeFile(
+                path.join(systemXDir, "components.puml"),
+                `@startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 title Component Diagram for System X API
 Container_Boundary(api, "API") {
@@ -76,14 +93,20 @@ Rel(controller, service, "Uses")
 Rel(service, repo, "Uses")
 Rel(repo, db, "Reads/Writes", "JDBC")
 SHOW_LEGEND()
-@enduml`);
-            await fs.writeFile(path.join(systemXDir, 'components.md'), `# System X API Component Diagram
+@enduml`,
+            );
+            await fs.writeFile(
+                path.join(systemXDir, "components.md"),
+                `# System X API Component Diagram
 This diagram details the API container:
 - **Controller**: Handles HTTP requests.
 - **Service**: Implements business logic.
-- **Repository**: Manages database access.`);
+- **Repository**: Manages database access.`,
+            );
             // Code
-            await fs.writeFile(path.join(systemXDir, 'code.puml'), `@startuml
+            await fs.writeFile(
+                path.join(systemXDir, "code.puml"),
+                `@startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 title Code Diagram for System X API
 package "API" {
@@ -99,14 +122,20 @@ package "API" {
 }
 Controller --> Service
 Service --> Repository
-@enduml`);
-            await fs.writeFile(path.join(systemXDir, 'code.md'), `# System X Code Diagram
+@enduml`,
+            );
+            await fs.writeFile(
+                path.join(systemXDir, "code.md"),
+                `# System X Code Diagram
 This diagram shows the class structure within the API:
 - **Controller**: Handles HTTP requests.
 - **Service**: Processes business logic.
-- **Repository**: Queries the database.`);
+- **Repository**: Queries the database.`,
+            );
             // Deployment
-            await fs.writeFile(path.join(systemXDir, 'deployment.puml'), `@startuml
+            await fs.writeFile(
+                path.join(systemXDir, "deployment.puml"),
+                `@startuml
 !include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Deployment.puml
 title Deployment Diagram for System X
 Deployment_Node(web_server, "Web Server", "AWS EC2", "Hosts the Web App") {
@@ -121,14 +150,20 @@ Deployment_Node(db_server, "Database Server", "AWS RDS", "Hosts the Database") {
 Rel(web_app, api, "Calls", "JSON/HTTPS")
 Rel(api, db, "Reads/Writes", "JDBC")
 SHOW_LEGEND()
-@enduml`);
-            await fs.writeFile(path.join(systemXDir, 'deployment.md'), `# System X Deployment Diagram
+@enduml`,
+            );
+            await fs.writeFile(
+                path.join(systemXDir, "deployment.md"),
+                `# System X Deployment Diagram
 This diagram shows the deployment topology:
 - **Web Server**: Hosts the Web App on AWS EC2.
 - **API Server**: Hosts the API on AWS EC2.
-- **Database Server**: Hosts the Database on AWS RDS.`);
+- **Database Server**: Hosts the Database on AWS RDS.`,
+            );
             // Documentation
-            await fs.writeFile(path.join(systemXDir, 'documentation.md'), `# System X Documentation
+            await fs.writeFile(
+                path.join(systemXDir, "documentation.md"),
+                `# System X Documentation
 ## Overview
 System X is designed to demonstrate the C4 model for architecture visualization.
 
@@ -136,10 +171,11 @@ System X is designed to demonstrate the C4 model for architecture visualization.
 The system follows a microservices architecture with a React frontend, Spring Boot API, and PostgreSQL database.
 
 ## Deployment
-Deployed on AWS with EC2 and RDS.`);
+Deployed on AWS with EC2 and RDS.`,
+            );
         }
     } catch (err) {
-        console.error('Error initializing diagrams directory:', err);
+        console.error("Error initializing diagrams directory:", err);
     }
 }
 
@@ -147,24 +183,96 @@ Deployed on AWS with EC2 and RDS.`);
 async function loadSystems() {
     const systems = {};
     try {
-        const systemDirs = await fs.readdir(DIAGRAMS_DIR, { withFileTypes: true });
+        const systemDirs = await fs.readdir(DIAGRAMS_DIR, {
+            withFileTypes: true,
+        });
         for (const dir of systemDirs) {
             if (dir.isDirectory()) {
                 const systemName = dir.name;
                 const systemDir = path.join(DIAGRAMS_DIR, systemName);
                 systems[systemName] = {
-                    info: { md: await fs.readFile(path.join(systemDir, 'info.md'), 'utf8').catch(() => '') },
-                    context: { puml: await fs.readFile(path.join(systemDir, 'context.puml'), 'utf8').catch(() => ''), md: await fs.readFile(path.join(systemDir, 'context.md'), 'utf8').catch(() => '') },
-                    containers: { puml: await fs.readFile(path.join(systemDir, 'containers.puml'), 'utf8').catch(() => ''), md: await fs.readFile(path.join(systemDir, 'containers.md'), 'utf8').catch(() => '') },
-                    components: { puml: await fs.readFile(path.join(systemDir, 'components.puml'), 'utf8').catch(() => ''), md: await fs.readFile(path.join(systemDir, 'components.md'), 'utf8').catch(() => '') },
-                    code: { puml: await fs.readFile(path.join(systemDir, 'code.puml'), 'utf8').catch(() => ''), md: await fs.readFile(path.join(systemDir, 'code.md'), 'utf8').catch(() => '') },
-                    deployment: { puml: await fs.readFile(path.join(systemDir, 'deployment.puml'), 'utf8').catch(() => ''), md: await fs.readFile(path.join(systemDir, 'deployment.md'), 'utf8').catch(() => '') },
-                    documentation: { md: await fs.readFile(path.join(systemDir, 'documentation.md'), 'utf8').catch(() => '') }
+                    info: {
+                        md: await fs
+                            .readFile(path.join(systemDir, "info.md"), "utf8")
+                            .catch(() => ""),
+                    },
+                    context: {
+                        puml: await fs
+                            .readFile(
+                                path.join(systemDir, "context.puml"),
+                                "utf8",
+                            )
+                            .catch(() => ""),
+                        md: await fs
+                            .readFile(
+                                path.join(systemDir, "context.md"),
+                                "utf8",
+                            )
+                            .catch(() => ""),
+                    },
+                    containers: {
+                        puml: await fs
+                            .readFile(
+                                path.join(systemDir, "containers.puml"),
+                                "utf8",
+                            )
+                            .catch(() => ""),
+                        md: await fs
+                            .readFile(
+                                path.join(systemDir, "containers.md"),
+                                "utf8",
+                            )
+                            .catch(() => ""),
+                    },
+                    components: {
+                        puml: await fs
+                            .readFile(
+                                path.join(systemDir, "components.puml"),
+                                "utf8",
+                            )
+                            .catch(() => ""),
+                        md: await fs
+                            .readFile(
+                                path.join(systemDir, "components.md"),
+                                "utf8",
+                            )
+                            .catch(() => ""),
+                    },
+                    code: {
+                        puml: await fs
+                            .readFile(path.join(systemDir, "code.puml"), "utf8")
+                            .catch(() => ""),
+                        md: await fs
+                            .readFile(path.join(systemDir, "code.md"), "utf8")
+                            .catch(() => ""),
+                    },
+                    deployment: {
+                        puml: await fs
+                            .readFile(
+                                path.join(systemDir, "deployment.puml"),
+                                "utf8",
+                            )
+                            .catch(() => ""),
+                        md: await fs
+                            .readFile(
+                                path.join(systemDir, "deployment.md"),
+                                "utf8",
+                            )
+                            .catch(() => ""),
+                    },
+                    documentation: {
+                        md: await fs
+                            .readFile(
+                                path.join(systemDir, "documentation.md"),
+                                "utf8",
+                            )
+                            .catch(() => ""),
+                    },
                 };
             }
         }
     } catch (err) {
-        console.error('Error loading systems:', err);
+        console.error("Error loading systems:", err);
     }
     return systems;
 }
@@ -174,130 +282,175 @@ app.use(express.json());
 
 // Initialize diagrams directory on startup
 initializeDiagramsDir().then(() => {
-    console.log('Diagrams directory initialized');
+    console.log("Diagrams directory initialized");
 });
 
 // Serve the workspace homepage
-app.get('/', (req, res) => {
-    res.sendFile(path.join(VIEWS_DIR, 'index.html'));
+app.get("/", (req, res) => {
+    res.sendFile(path.join(VIEWS_DIR, "index.html"));
 });
 
 // API to get all systems
-app.get('/api/systems', async (req, res) => {
+app.get("/api/systems", async (req, res) => {
     const systems = await loadSystems();
     res.json(systems);
 });
 
 // API to add a new system
-app.post('/api/systems', async (req, res) => {
+app.post("/api/systems", async (req, res) => {
     const { name } = req.body;
     const systemDir = path.join(DIAGRAMS_DIR, name);
     try {
         const systems = await loadSystems();
         if (name && !systems[name]) {
             await fs.mkdir(systemDir);
-            await fs.writeFile(path.join(systemDir, 'info.md'), '');
-            await fs.writeFile(path.join(systemDir, 'context.puml'), '');
-            await fs.writeFile(path.join(systemDir, 'context.md'), '');
-            await fs.writeFile(path.join(systemDir, 'containers.puml'), '');
-            await fs.writeFile(path.join(systemDir, 'containers.md'), '');
-            await fs.writeFile(path.join(systemDir, 'components.puml'), '');
-            await fs.writeFile(path.join(systemDir, 'components.md'), '');
-            await fs.writeFile(path.join(systemDir, 'code.puml'), '');
-            await fs.writeFile(path.join(systemDir, 'code.md'), '');
-            await fs.writeFile(path.join(systemDir, 'deployment.puml'), '');
-            await fs.writeFile(path.join(systemDir, 'deployment.md'), '');
-            await fs.writeFile(path.join(systemDir, 'documentation.md'), '');
-            res.status(201).json({ message: 'System added', name });
+            await fs.writeFile(path.join(systemDir, "info.md"), "");
+            await fs.writeFile(path.join(systemDir, "context.puml"), "");
+            await fs.writeFile(path.join(systemDir, "context.md"), "");
+            await fs.writeFile(path.join(systemDir, "containers.puml"), "");
+            await fs.writeFile(path.join(systemDir, "containers.md"), "");
+            await fs.writeFile(path.join(systemDir, "components.puml"), "");
+            await fs.writeFile(path.join(systemDir, "components.md"), "");
+            await fs.writeFile(path.join(systemDir, "code.puml"), "");
+            await fs.writeFile(path.join(systemDir, "code.md"), "");
+            await fs.writeFile(path.join(systemDir, "deployment.puml"), "");
+            await fs.writeFile(path.join(systemDir, "deployment.md"), "");
+            await fs.writeFile(path.join(systemDir, "documentation.md"), "");
+            res.status(201).json({ message: "System added", name });
         } else {
-            res.status(400).json({ error: 'Invalid system name or system already exists' });
+            res.status(400).json({
+                error: "Invalid system name or system already exists",
+            });
         }
     } catch (err) {
-        console.error('Error adding system:', err);
-        res.status(500).json({ error: 'Failed to add system' });
+        console.error("Error adding system:", err);
+        res.status(500).json({ error: "Failed to add system" });
     }
 });
 
 // API to save a diagram
-app.put('/api/systems/:system/:type', async (req, res) => {
+app.put("/api/systems/:system/:type", async (req, res) => {
     const { system, type } = req.params;
     const { puml, md } = req.body;
     const systemDir = path.join(DIAGRAMS_DIR, system);
     try {
         const systems = await loadSystems();
-        if (systems[system] && ['info', 'context', 'containers', 'components', 'code', 'deployment', 'documentation'].includes(type)) {
-            if (['context', 'containers', 'components', 'code', 'deployment'].includes(type)) {
-                await fs.writeFile(path.join(systemDir, `${type}.puml`), puml || '');
-                await fs.writeFile(path.join(systemDir, `${type}.md`), md || '');
+        if (
+            systems[system] &&
+            [
+                "info",
+                "context",
+                "containers",
+                "components",
+                "code",
+                "deployment",
+                "documentation",
+            ].includes(type)
+        ) {
+            if (
+                [
+                    "context",
+                    "containers",
+                    "components",
+                    "code",
+                    "deployment",
+                ].includes(type)
+            ) {
+                await fs.writeFile(
+                    path.join(systemDir, `${type}.puml`),
+                    puml || "",
+                );
+                await fs.writeFile(
+                    path.join(systemDir, `${type}.md`),
+                    md || "",
+                );
             } else {
-                await fs.writeFile(path.join(systemDir, `${type}.md`), md || '');
+                await fs.writeFile(
+                    path.join(systemDir, `${type}.md`),
+                    md || "",
+                );
             }
-            res.json({ message: 'Diagram saved' });
+            res.json({ message: "Diagram saved" });
         } else {
-            res.status(404).json({ error: 'System or diagram type not found' });
+            res.status(404).json({ error: "System or diagram type not found" });
         }
     } catch (err) {
-        console.error('Error saving diagram:', err);
-        res.status(500).json({ error: 'Failed to save diagram' });
+        console.error("Error saving diagram:", err);
+        res.status(500).json({ error: "Failed to save diagram" });
     }
 });
 
 // Preview endpoint for rendering PlantUML on the server
-app.post('/preview', async (req, res) => {
-    console.log('Received preview request:', req.body);
+app.post("/preview", async (req, res) => {
+    console.log("Received preview request:", req.body);
     const { pumlCode } = req.body;
 
     if (!pumlCode) {
-        console.log('No PlantUML code provided');
-        return res.status(400).json({ error: 'No PlantUML code provided.' });
+        console.log("No PlantUML code provided");
+        return res.status(400).json({ error: "No PlantUML code provided." });
     }
 
     try {
         const encoded = encodeURIComponent(pumlCode);
-        const plantumlUrl = `http://www.plantuml.com/plantuml/svg/~h${Buffer.from(pumlCode).toString('hex')}`;
-        console.log('Fetching SVG from PlantUML server:', plantumlUrl);
+        const plantumlUrl = `http://www.plantuml.com/plantuml/svg/~h${Buffer.from(pumlCode).toString("hex")}`;
+        console.log("Fetching SVG from PlantUML server:", plantumlUrl);
 
         const response = await fetch(plantumlUrl);
         if (!response.ok) {
             const errorText = await response.text();
-            console.log('PlantUML server error response:', errorText);
-            throw new Error(`PlantUML server responded with status ${response.status}: ${errorText}`);
+            console.log("PlantUML server error response:", errorText);
+            throw new Error(
+                `PlantUML server responded with status ${response.status}: ${errorText}`,
+            );
         }
         const diagramSvg = await response.text();
         res.json({ svg: diagramSvg });
     } catch (procError) {
-        console.error('Error rendering preview:', procError);
-        res.status(500).json({ error: `Failed to render diagram: ${procError.message}` });
+        console.error("Error rendering preview:", procError);
+        res.status(500).json({
+            error: `Failed to render diagram: ${procError.message}`,
+        });
     }
 });
 
 // Dynamic diagram route (for drill-down and viewing)
-app.get('/diagram/:system/:type', async (req, res) => {
+app.get("/diagram/:system/:type", async (req, res) => {
     const { system, type } = req.params;
     const systems = await loadSystems();
 
     if (!systems[system] || !systems[system][type]) {
-        return res.status(404).json({ error: `Diagram for ${system} (${type}) not found.` });
+        return res
+            .status(404)
+            .json({ error: `Diagram for ${system} (${type}) not found.` });
     }
 
     const data = systems[system][type];
-    let diagramSvg = '';
-    let content = '';
+    let diagramSvg = "";
+    let content = "";
 
-    if (['context', 'containers', 'components', 'code', 'deployment'].includes(type)) {
-        const puml = data.puml || '';
-        const md = data.md || '';
-        diagramSvg = puml ? '<p class="has-text-danger">Error rendering diagram.</p>' : '';
+    if (
+        ["context", "containers", "components", "code", "deployment"].includes(
+            type,
+        )
+    ) {
+        const puml = data.puml || "";
+        const md = data.md || "";
+        diagramSvg = puml
+            ? '<p class="has-text-danger">Error rendering diagram.</p>'
+            : "";
         if (puml) {
             try {
                 const encoded = encodeURIComponent(puml);
-                const plantumlUrl = `http://www.plantuml.com/plantuml/svg/~h${Buffer.from(puml).toString('hex')}`;
+                const plantumlUrl = `http://www.plantuml.com/plantuml/svg/~h${Buffer.from(puml).toString("hex")}`;
                 const response = await fetch(plantumlUrl);
                 if (response.ok) {
                     diagramSvg = await response.text();
                 }
             } catch (procError) {
-                console.error(`Error rendering ${system} (${type}):`, procError);
+                console.error(
+                    `Error rendering ${system} (${type}):`,
+                    procError,
+                );
                 diagramSvg = `<p class="has-text-danger">Failed to render diagram: ${procError.message}</p>`;
             }
         }
@@ -319,13 +472,13 @@ app.get('/diagram/:system/:type', async (req, res) => {
                     <div class="box explanation-content">${md}</div>
                     <h2>Diagram Code (PlantUML)</h2>
                     <div class="box">
-                        <pre><code>${puml.replace(/</g, '<').replace(/>/g, '>')}</code></pre>
+                        <pre><code>${puml.replace(/</g, "<").replace(/>/g, ">")}</code></pre>
                     </div>
                 </div>
             </div>
         `;
     } else {
-        const md = data.md || '';
+        const md = data.md || "";
         content = `
             <div class="box">
                 ${md}
@@ -379,9 +532,13 @@ app.get('/diagram/:system/:type', async (req, res) => {
                     </ul>
                     <p class="menu-label">Systems</p>
                     <ul class="menu-list">
-                        ${Object.keys(systems).map(s => `
-                            <li><a href="/diagram/${s}/info"${s === system ? ' class="is-active"' : ''}>${s}</a></li>
-                        `).join('')}
+                        ${Object.keys(systems)
+                            .map(
+                                (s) => `
+                            <li><a href="/diagram/${s}/info"${s === system ? ' class="is-active"' : ""}>${s}</a></li>
+                        `,
+                            )
+                            .join("")}
                     </ul>
                 </aside>
 
@@ -393,9 +550,21 @@ app.get('/diagram/:system/:type', async (req, res) => {
                     <!-- Tabs -->
                     <div class="tabs mt-3">
                         <ul>
-                            ${['info', 'context', 'containers', 'components', 'code', 'deployment', 'documentation'].map(t => `
-                                <li${t === type ? ' class="is-active"' : ''}><a href="/diagram/${system}/${t}">${t.charAt(0).toUpperCase() + t.slice(1)}</a></li>
-                            `).join('')}
+                            ${[
+                                "info",
+                                "context",
+                                "containers",
+                                "components",
+                                "code",
+                                "deployment",
+                                "documentation",
+                            ]
+                                .map(
+                                    (t) => `
+                                <li${t === type ? ' class="is-active"' : ""}><a href="/diagram/${system}/${t}">${t.charAt(0).toUpperCase() + t.slice(1)}</a></li>
+                            `,
+                                )
+                                .join("")}
                         </ul>
                     </div>
 
@@ -491,8 +660,8 @@ app.get('/diagram/:system/:type', async (req, res) => {
 
 // Catch-all for unhandled errors
 app.use((err, req, res, next) => {
-    console.error('Unhandled error:', err.stack);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Unhandled error:", err.stack);
+    res.status(500).json({ error: "Internal server error" });
 });
 
 app.listen(port, () => {
