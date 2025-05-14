@@ -2,6 +2,7 @@ const express = require("express");
 const fs = require("fs").promises;
 const path = require("path");
 const { spawn } = require("child_process");
+const { marked } = require("marked"); // Add marked import
 
 const app = express();
 const port = 3000;
@@ -312,6 +313,7 @@ app.get("/diagram/:system/:type", async (req, res) => {
                 diagramSvg = `<p class="has-text-danger">Failed to render diagram: ${procError.message}</p>`;
             }
         }
+        const renderedMarkdown = md ? marked.parse(md) : ""; // Render markdown server-side
         content = `
             <div class="columns is-multiline">
                 <div class="column is-full">
@@ -327,36 +329,15 @@ app.get("/diagram/:system/:type", async (req, res) => {
                 </div>
                 <div class="column is-full">
                     <h2>Explanation</h2>
-                    <div class="box explanation-content" id="explanation-content">${md}</div>
+                    <div class="box explanation-content" id="explanation-content">${renderedMarkdown}</div>
                 </div>
             </div>
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const explanationContent = document.getElementById('explanation-content');
-                    if (explanationContent && typeof marked !== 'undefined' && marked.parse) {
-                        explanationContent.innerHTML = marked.parse(explanationContent.innerText);
-                    } else if (explanationContent) {
-                        console.error('Marked library failed to load or is not defined.');
-                        explanationContent.innerHTML = '<p class="has-text-danger">Failed to render markdown content. Please try refreshing the page or check your internet connection.</p>';
-                    }
-                });
-            </script>
         `;
     } else {
         const md = data.md || "";
+        const renderedMarkdown = md ? marked.parse(md) : ""; // Render markdown server-side
         content = `
-            <div class="box content" id="markdown-content">${md}</div>
-            <script>
-                document.addEventListener('DOMContentLoaded', () => {
-                    const markdownContent = document.getElementById('markdown-content');
-                    if (markdownContent && typeof marked !== 'undefined' && marked.parse) {
-                        markdownContent.innerHTML = marked.parse(markdownContent.innerText);
-                    } else if (markdownContent) {
-                        console.error('Marked library failed to load or is not defined.');
-                        markdownContent.innerHTML = '<p class="has-text-danger">Failed to render markdown content. Please try refreshing the page or check your internet connection.</p>';
-                    }
-                });
-            </script>
+            <div class="box content" id="markdown-content">${renderedMarkdown}</div>
         `;
     }
 
@@ -371,7 +352,6 @@ app.get("/diagram/:system/:type", async (req, res) => {
             <link rel="stylesheet" href="/style.css">
             <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
             <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.2/dist/svg-pan-zoom.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/15.0.7/marked.min.js" integrity="sha512-rPuOZPx/WHMHNx2RoALKwiCDiDrCo4ekUctyTYKzBo8NGA79NcTW2gfrbcCL2RYL7RdjX2v9zR0fKyI4U4kPew==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
         </head>
         <body>
             <!-- Navbar -->
